@@ -3,10 +3,10 @@ Function Login
 {
     $needLogin = $true
 
-    # checking the AzureRM connection if login is needed
+    # checking the Az connection if login is needed
     Try 
     {
-        $content = Get-AzureRmContext
+        $content = Get-AzContext
         if ($content) 
         {
             $needLogin = ([string]::IsNullOrEmpty($content.Account))
@@ -14,7 +14,7 @@ Function Login
     } 
     Catch 
     {
-        if ($_ -like "*Login-AzureRmAccount to login*") 
+        if ($_ -like "*Login-AzAccount to login*") 
         {   
             $needLogin = $true
         } 
@@ -28,7 +28,7 @@ Function Login
     if ($needLogin)
     {
         Write-Host "You need to login to Azure"
-        Login-AzureRmAccount
+        Login-AzAccount
     }
 
     # Checking the Azure AD connection and if login is needed
@@ -53,9 +53,9 @@ else {
     Import-Module AzureAD -ErrorAction SilentlyContinue | Out-Null 
     If ( !(Get-Module | where-Object {$_.Name -like "AzureAD"}).Count ) { Install-Module AzureAD -scope CurrentUser }
 
-    # check for and install the AzureRM if needed
-    Import-Module AzureRm.Resources -ErrorAction SilentlyContinue | Out-Null 
-    If ( !(Get-Module | where-Object {$_.Name -like "AzureRM.Resources"}).Count ) { Install-Module AzureRM -scope CurrentUser}
+    # check for and install the Az if needed
+    Import-Module Az.Resources -ErrorAction SilentlyContinue | Out-Null 
+    If ( !(Get-Module | where-Object {$_.Name -like "Az.Resources"}).Count ) { Install-Module Az -scope CurrentUser}
 
     # Loggin in to Azure (if needed)
     Login
@@ -103,14 +103,14 @@ Catch {
 
     $AllSubscriptions = @()
 	$counter=0
-    $subs = Get-AzureRmSubscription #| Where-Object {$_.Name -notlike "*_MS_*"}
+    $subs = Get-AzSubscription #| Where-Object {$_.Name -notlike "*_MS_*"}
     $subs = $subs | sort-object Name
 	$subs = $subs | sort-object TenantId
     #Loop through each Azure subscription user has access to
     Foreach ($sub in $subs) {
         #$SubName = $sub.Name
         if ($sub.Name -notlike "Access to Azure Active Directory*" -And $sub.Name -notlike "Zugriff auf Azure Active Directory*") { # You can't assign roles in Access to Azure Active Directory subscriptions
-            #Set-AzureRmContext -SubscriptionId $sub.id
+            #Set-AzContext -SubscriptionId $sub.id
             $tenantName = $sub.TenantId
 
 
