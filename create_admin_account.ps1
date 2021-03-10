@@ -1,8 +1,8 @@
-param (
+﻿param (
     [parameter(Mandatory)]
     $AADEmailAdress
 )
-function Get-EmailValidation { 
+function Get-EmailValidation {
     param([string]$EmailAddress)
 
     try {
@@ -13,31 +13,31 @@ function Get-EmailValidation {
         return $false
     }
 }
-function Get-RandomCharacters($length, $characters) { 
-    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length } 
-    $private:ofs = "" 
+function Get-RandomCharacter($length, $characters) {
+    $random = 1..$length | ForEach-Object { Get-Random -Maximum $characters.length }
+    $private:ofs = ""
     return [String]$characters[$random]
 }
 function Get-RandomPassword {
-    $password = Get-RandomCharacters -length 5 -characters 'abcdefghiklmnoprstuvwxyz'
-    $password += Get-RandomCharacters -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
-    $password += Get-RandomCharacters -length 1 -characters '1234567890'
-    $password += Get-RandomCharacters -length 1 -characters '!"§$%&/()=?}][{@#*+'    
+    $password = Get-RandomCharacter -length 5 -characters 'abcdefghiklmnoprstuvwxyz'
+    $password += Get-RandomCharacter -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+    $password += Get-RandomCharacter -length 1 -characters '1234567890'
+    $password += Get-RandomCharacter -length 1 -characters '!"§$%&/()=?}][{@#*+'
 }
-function Get-ScrambleString([string]$inputString) {     
-    $characterArray = $inputString.ToCharArray()   
-    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length     
+function Get-ScrambleString([string]$inputString) {
+    $characterArray = $inputString.ToCharArray()
+    $scrambledStringArray = $characterArray | Get-Random -Count $characterArray.Length
     $outputString = -join $scrambledStringArray
-    return $outputString 
+    return $outputString
 }
-$password = Get-RandomCharacters -length 8 -characters 'abcdefghiklmnoprstuvwxyz'
-$password += Get-RandomCharacters -length 3 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
-$password += Get-RandomCharacters -length 2 -characters '1234567890'
-$password += Get-RandomCharacters -length 2 -characters '!"§$%&/()=?}][{@#*+'
+$password = Get-RandomCharacter -length 8 -characters 'abcdefghiklmnoprstuvwxyz'
+$password += Get-RandomCharacter -length 3 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+$password += Get-RandomCharacter -length 2 -characters '1234567890'
+$password += Get-RandomCharacter -length 2 -characters '!"§$%&/()=?}][{@#*+'
 
 $emailIsValid = Get-EmailValidation -EmailAddress $AADEmailAdress
 if ($emailIsValid) {
-    $ADUser = Get-AzureADUser -SearchString $AADEmailAdress    
+    $ADUser = Get-AzureADUser -SearchString $AADEmailAdress
 }
 else {
     Write-Host "$([char]034)$($AADEmailAdress)$([char]034) is not a valid Email-Address Format!" -ForegroundColor Red
@@ -83,14 +83,14 @@ if ($action.ToLower() -like 'y*') {
             -PhysicalDeliveryOfficeName $ADUser.PhysicalDeliveryOfficeName `
             -StreetAddress $ADUser.StreetAddress `
             -PostalCode $ADUser.PostalCode `
-            -AccountEnabled $true 
+            -AccountEnabled $true
         Write-Host "Admin account successfully created!" -ForegroundColor green
         Write-Host "UserPrincipalName: $($Account.UserPrincipalName)" -ForegroundColor Yellow
         Write-Host "Temporary Password: $($genaratedPassword)" -ForegroundColor Yellow
         Write-Host "DisplayName: $($Account.DisplayName)" -ForegroundColor Yellow
         Write-Host "ObjectId: $($Account.ObjectId)" -ForegroundColor Yellow
         Write-Host "Please sigin to https://myaccount.microsoft.com/ to change your password and setup MFA." -ForegroundColor Yellow
-        
+
     }
     catch {
         Write-Host "An error occurred:" -ForegroundColor Red
