@@ -30,10 +30,10 @@ function Get-ScrambleString([string]$inputString) {
     $outputString = -join $scrambledStringArray
     return $outputString 
 }
-$password = Get-RandomCharacters -length 5 -characters 'abcdefghiklmnoprstuvwxyz'
-$password += Get-RandomCharacters -length 1 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
-$password += Get-RandomCharacters -length 1 -characters '1234567890'
-$password += Get-RandomCharacters -length 1 -characters '!"§$%&/()=?}][{@#*+'
+$password = Get-RandomCharacters -length 8 -characters 'abcdefghiklmnoprstuvwxyz'
+$password += Get-RandomCharacters -length 3 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
+$password += Get-RandomCharacters -length 2 -characters '1234567890'
+$password += Get-RandomCharacters -length 2 -characters '!"§$%&/()=?}][{@#*+'
 
 $emailIsValid = Get-EmailValidation -EmailAddress $AADEmailAdress
 if ($emailIsValid) {
@@ -89,7 +89,7 @@ if ($action.ToLower() -like 'y*') {
         Write-Host "Temporary Password: $($genaratedPassword)" -ForegroundColor Yellow
         Write-Host "DisplayName: $($Account.DisplayName)" -ForegroundColor Yellow
         Write-Host "ObjectId: $($Account.ObjectId)" -ForegroundColor Yellow
-        Write-Host "Please sigin to https://myaccount.microsoft.com/ to change to password and setup MFA." -ForegroundColor Yellow
+        Write-Host "Please sigin to https://myaccount.microsoft.com/ to change your password and setup MFA." -ForegroundColor Yellow
         
     }
     catch {
