@@ -30,6 +30,23 @@ function Get-ScrambleString([string]$inputString) {
     $outputString = -join $scrambledStringArray
     return $outputString
 }
+$context = $null
+try {
+    $context = Get-AzureADCurrentSessionInfo -ErrorAction SilentlyContinue
+}
+catch {
+    Write-Host "You're curenntly not connected to Azure Active Directory. Please Login..." -ForegroundColor Yellow
+}
+if (!$context) {
+    try {
+        $context = Connect-AzureAD
+    }
+    catch {
+        Write-Host "Login Failed!" -ForegroundColor Red
+        exit 0
+    }
+    
+}
 $password = Get-RandomCharacter -length 8 -characters 'abcdefghiklmnoprstuvwxyz'
 $password += Get-RandomCharacter -length 3 -characters 'ABCDEFGHKLMNOPRSTUVWXYZ'
 $password += Get-RandomCharacter -length 2 -characters '1234567890'
@@ -61,24 +78,53 @@ if ($action.ToLower() -like 'y*') {
     $PasswordProfile.Password = $genaratedPassword
     $PasswordProfile.ForceChangePasswordNextLogin = $true
 
-    $GivenName = (Get-Culture).TextInfo.ToTitleCase($ADUser.GivenName.ToLower())
-    $Surname = (Get-Culture).TextInfo.ToTitleCase($ADUser.Surname.ToLower())
-    $UserPrincipalName = "adm_$($GivenName).$($Surname)@lufthansagroup.onmicrosoft.com".ToLower()
-    $DisplayName = $ADUser.DisplayName + " - Admin"
+    if ($ADUser.GivenName) {
+        $GivenName = (Get-Culture).TextInfo.ToTitleCase($ADUser.GivenName.ToLower())
+    }
+    if ($ADUser.Surname) {
+        $Surname = (Get-Culture).TextInfo.ToTitleCase($ADUser.Surname.ToLower())
+    }
+    if (((($adminAccountUserPrincipalSearchString -split ('#'))[0] -split ('_'))[0]) -and (!$GivenName) -and (!$Surname)) {
+        $AdminAccountUserPrincipal = (($adminAccountUserPrincipalSearchString -split ('#'))[0] -split ('_'))[0]
+        $CompanyDomain = (($adminAccountUserPrincipalSearchString -split ('#'))[0] -split ('_'))[1]
+        $CompanyName = (Get-Culture).TextInfo.ToTitleCase($CompanyDomain.Substring(0, $CompanyDomain.lastIndexOf('.')).ToLower())
+        $UserPrincipalName = "adm_$($AdminAccountUserPrincipal)@$($context.TenantDomain)".ToLower()
+        $mailNickname = "adm_$($AdminAccountUserPrincipal)".ToLower()
+        $OtherMails = $ADUser.OtherMails
+    }
+    else {
+        $UserPrincipalName = "adm_$($GivenName).$($Surname)@$($context.TenantDomain)".ToLower()
+        $mailNickname = "adm_$($GivenName).$($Surname)"
+        $OtherMails = $ADUser.UserPrincipalName.ToLower()
+        $CompanyName = $ADUser.CompanyName
+    }
+    if ($adminAccountUserPrincipalSearchString -match 'EXT') {
+        $ext = '#EXT' 
+    }
+    else {
+        $ext = $null
+    }
+    if ($CompanyName) {
+        $DisplayName = $ADUser.DisplayName + " ($($CompanyName)) - Admin$($ext)"
+    }
+    else {
+        $DisplayName = $ADUser.DisplayName + " - Admin$($ext)"
+    }
+    
     try {
 
         $Account = New-AzureADUser `
             -UserPrincipalName $UserPrincipalName.ToLower() `
             -DisplayName $DisplayName `
-            -mailNickname "adm_$($GivenName).$($Surname)".ToLower() `
+            -mailNickname $mailNickname `
             -PasswordProfile $PasswordProfile `
             -GivenName $GivenName `
             -Surname $Surname `
             -Mobile $ADUser.Mobile `
             -TelephoneNumber $ADUser.TelephoneNumber  `
-            -OtherMails $ADUser.UserPrincipalName.ToLower() `
+            -OtherMails $OtherMails `
             -Department $ADUser.Department `
-            -CompanyName $ADUser.CompanyName `
+            -CompanyName $CompanyName `
             -Country $ADUser.Country `
             -PhysicalDeliveryOfficeName $ADUser.PhysicalDeliveryOfficeName `
             -StreetAddress $ADUser.StreetAddress `
