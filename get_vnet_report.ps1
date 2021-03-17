@@ -10,15 +10,16 @@ $context = $null
 $context = Get-AzContext
 $tenantName = (Get-AzTenant -TenantId $TenantId).name
 $fileName = $((Get-Date).ToString('yyyy-MM-dd-hh-mm')) + "-vNetReport_$tenantName.csv"
-if ($context.Tenant -ne $TenantId) {
-    $context = Connect-AzAccount -Tenant $TenantId -WarningAction SilentlyContinue
-}
+
 if ($context) {
     Write-Host "You're' logged in" -ForegroundColor Green
 }
 else {
     Write-Host "You're not logged in to Azure" -ForegroundColor Yellow
     $context = Connect-AzAccount -Tenant $TenantId
+}
+if ($context.Tenant.Id -ne $TenantId) {
+    $context = Connect-AzAccount -Tenant $TenantId -WarningAction SilentlyContinue
 }
 function Get-AzRestVirtualNetwork {
     [CmdletBinding()]
