@@ -48,7 +48,7 @@ $AzRestVirtualNetwork = @()
 foreach ($Subscription in $Subscriptions) {
     $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id 
     foreach ($Object in $Objects) {
-        $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; }
+        $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; 'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; }
         $AzRestVirtualNetwork += New-Object PSObject -Property $Current
     }
     if ($Export) {
