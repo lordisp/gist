@@ -1,3 +1,30 @@
+<#
+.Description
+This Stript reports or exports Virtual Network Details in all or just a single Subscriptions of a Tenant.
+.PARAMETER TenantId
+Determines which Azure Tenant shall be reported
+.PARAMETER Subscription
+To limit the report down to just a single Subscription.
+.EXAMPLE
+get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Export
+Export all Virtual Networks from all Subscriptions from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to a CSV File
+.EXAMPLE
+get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Export -Html
+Export all Virtual Networks from all Subscriptions from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to a Html File
+.EXAMPLE
+get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Prints all Virtual Networks from all Subscriptions from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to the current Terminal
+.EXAMPLE
+get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Subscription SUBSCRIPTION_NAME_123 -Export
+Export all Virtual Networks from a single Subscription from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to a CSV File
+.EXAMPLE
+get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Subscription SUBSCRIPTION_NAME_123 -Export -Html
+Export all Virtual Networks from a single Subscription from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to a HTML File
+.NOTES
+    Author: Rafael Camison
+    Date:   Mar 17th, 2021
+Check out https://github.com/lordisp/gist/blob/main/get_vnet_report.ps1 for the latest updates on this script
+#>
 [CmdletBinding()]
 param (
     [parameter(Mandatory = $true)]
@@ -5,7 +32,7 @@ param (
     [parameter(Mandatory = $false)]
     $Subscription,
     [Switch]$Export,
-    [Switch]$html
+    [Switch]$Html
 )
 $context = $null
 $context = Get-AzContext
