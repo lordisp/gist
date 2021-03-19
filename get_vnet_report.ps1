@@ -44,15 +44,26 @@ function Get-AzRestVirtualNetwork {
     return $Query.value 
 }
 $Subscriptions = Get-AzSubscription -SubscriptionName $Subscription -TenantId $TenantId | Where-Object { $_.State -eq 'Enabled' -and $_.name -ne 'Zugriff auf Azure Active Directory' -and $_.name -ne 'Access to Azure Active Directory' }
+$i = 1
 $AzRestVirtualNetwork = @()
+Clear-Host
 foreach ($Subscription in $Subscriptions) {
+    if ($Export) {
+        Write-Progress -Activity "Fetching vNet Information from $($Subscription.Name)" -Status "Subsctiption $i out of $($Subscriptions.count)" -PercentComplete (($i / $Subscriptions.Count) * 100)  
+        $i++
+        if ($i -eq $Subscriptions.count) {
+            Write-Host "Export Completed!" -ForegroundColor Green
+            $filepath = Get-ChildItem $fileName*
+            Write-Host "$($pwd)\$($filepath.Name)" -ForegroundColor Yellow
+        }
+    }
     $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id 
     foreach ($Object in $Objects) {
         $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; 'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; }
         $AzRestVirtualNetwork += New-Object PSObject -Property $Current
     }
     if ($Export) {
-        if ($html) {
+        if ($Html) {
             $a = "<style>"
             $a = $a + "TABLE{border-width: 1px;border-style: solid;border-color: black;border-collapse: collapse;font-family:arial}"
             $a = $a + "TH{border-width: 1px;padding: 5px;border-style: solid;border-color: black;}"
@@ -64,5 +75,7 @@ foreach ($Subscription in $Subscriptions) {
             $AzRestVirtualNetwork | Export-CSV ".\$fileName.csv" -Delimiter ';' -force -notypeinformation -Append
         }
     }
-    $AzRestVirtualNetwork
+    if (!$export) {
+        $AzRestVirtualNetwork
+    }
 }
