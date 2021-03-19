@@ -36,14 +36,7 @@ Export all Virtual Networks from a single Subscription from the TenantId xxxxxxx
 .EXAMPLE
 get_vnet_report.ps1 -TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx -Subscription SUBSCRIPTION_NAME_123 -Export -Html
 Export all Virtual Networks from a single Subscription from the TenantId xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx to a HTML File
-.EXAMPLE
-Using filter for terminal output:
-.\get_vnet_report.ps1 -TenantId 72e15514-5be9-46a8-8b0b-af9b1b77b3b8 |?{$_.addressPref1 -like '172.16.*'}
-Subscription            vNetName    addressPref1    addressPref2    CostCenter  PspElement
-------------            --------    ------------    ------------    ----------  -----------
-SUBSCRIPTION_NAME_123   vnet-123    172.16.1.0/24     192.10.10.0/24  123456789   X/YYY-ZZZ-000.01
-SUBSCRIPTION_NAME_456   vnet-456    172.16.2.0/24     192.10.11.0/24  123456789   X/YYY-ZZZ-000.02
-SUBSCRIPTION_NAME_789   vnet-789    172.16.3.0/24     192.10.12.0/24  123456789   X/YYY-ZZZ-000.03
+
 .NOTES
     Author: Rafael Camison
     Date:   Mar 17th, 2021
