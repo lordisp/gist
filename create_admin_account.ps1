@@ -31,6 +31,10 @@ function Get-ScrambleString([string]$inputString) {
     return $outputString
 }
 $context = $null
+if ($PSVersionTable.PSVersion.Major -gt 6) {
+    "Powershell Version 7 is not supported"
+    exit 0
+}
 try {
     $context = Get-AzureADCurrentSessionInfo -ErrorAction SilentlyContinue
 }
