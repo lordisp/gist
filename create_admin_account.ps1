@@ -36,9 +36,11 @@ try {
 }
 catch {
     Write-Host "You're curenntly not connected to Azure Active Directory. Please Login..." -ForegroundColor Yellow
+    Write-Host "Trying to log you in... Connect-AzureAD..." -ForegroundColor Yellow
 }
 if (!$context) {
     try {
+        Get-Module -ListAvailable -Name azuread* | import-module
         $context = Connect-AzureAD
     }
     catch {
@@ -93,8 +95,10 @@ if ($action.ToLower() -like 'y*') {
         $OtherMails = $ADUser.OtherMails
     }
     else {
-        $UserPrincipalName = "adm_$($GivenName).$($Surname)@$($context.TenantDomain)".ToLower()
-        $mailNickname = "adm_$($GivenName).$($Surname)"
+        <#         $UserPrincipalName = "adm_$($GivenName).$($Surname)@$($context.TenantDomain)".ToLower() #>
+        $pos = $ADUser.UserPrincipalName.IndexOf('@')
+        $UserPrincipalName = "adm_" + $ADUser.UserPrincipalName.substring(0, $pos).ToLower() + "@$($context.TenantDomain)"
+        $mailNickname = $ADUser.mailNickname
         $OtherMails = $ADUser.UserPrincipalName.ToLower()
         $CompanyName = $ADUser.CompanyName
     }
@@ -104,7 +108,7 @@ if ($action.ToLower() -like 'y*') {
     else {
         $ext = $null
     }
-    if ($CompanyName) {
+    if ($CompanyName -and $ext) {
         $DisplayName = $ADUser.DisplayName + " ($($CompanyName)) - Admin$($ext)"
     }
     else {
