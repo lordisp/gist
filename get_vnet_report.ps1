@@ -105,7 +105,7 @@ Clear-Host
 foreach ($Subscription in $Subscriptions) {
     $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id 
     foreach ($Object in $Objects) {
-        $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; 'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; }
+        $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; 'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; 'BusinessService' = $Object.tags.business_service; 'BusinessUnit' = $Object.tags.business_unit; 'MspSLA' = $Object.tags.msp_sla; }
         $AzRestVirtualNetwork += New-Object PSObject -Property $Current
     }
     if ($Export) {
