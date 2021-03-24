@@ -120,7 +120,7 @@ foreach ($Subscription in $Subscriptions) {
             $AzRestVirtualNetwork  | ConvertTo-Html -Head $a | Out-file ".\$fileName.html"
         }
         else {
-            $AzRestVirtualNetwork | Export-CSV ".\$fileName.csv" -Delimiter ';' -force -notypeinformation -Append
+            $AzRestVirtualNetwork | Export-CSV ".\$fileName.csv" -Delimiter ';' -force -notypeinformation
         }
         if ($i -eq $Subscriptions.count) {
             Write-Host "Export Completed!" -ForegroundColor Green
