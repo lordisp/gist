@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Description
 This Stript reports or exports Virtual Network Details in all or just a single Subscriptions of a Tenant.
 .PARAMETER TenantId
@@ -96,14 +96,14 @@ function Get-AzRestVirtualNetwork {
         Write-Error "Error with Subscription $($SubscriptionId)"
         Write-Error $_
     }
-    return $Query.value 
+    return $Query.value
 }
-$Subscriptions = Get-AzSubscription -SubscriptionName $Subscription -TenantId $TenantId | Where-Object { $_.State -eq 'Enabled' -and $_.name -ne 'Zugriff auf Azure Active Directory' -and $_.name -ne 'Access to Azure Active Directory' } 
+$Subscriptions = Get-AzSubscription -SubscriptionName $Subscription -TenantId $TenantId | Where-Object { $_.State -eq 'Enabled' -and $_.name -ne 'Zugriff auf Azure Active Directory' -and $_.name -ne 'Access to Azure Active Directory' }
 $i = 0
 $AzRestVirtualNetwork = @()
 Clear-Host
 foreach ($Subscription in $Subscriptions) {
-    $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id 
+    $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id
     foreach ($Object in $Objects) {
         $Current = [ordered]@{'Subscription' = $Subscription.Name; `
             'vNetName' = $Object.Name; `
@@ -114,7 +114,7 @@ foreach ($Subscription in $Subscriptions) {
         #addressPrefixes
         $counter=0
         $Add = [ordered]@{}
-        foreach($addressPrefix in $Object.properties.addressSpace.addressPrefixes){ $counter++                        
+        foreach($addressPrefix in $Object.properties.addressSpace.addressPrefixes){ $counter++
             $Add += [ordered]@{"AddressPrefix$($counter)" = $addressPrefix;}
         }
         $Current += $Add
@@ -124,7 +124,7 @@ foreach ($Subscription in $Subscriptions) {
         #SubNets
         $counter=0
         $Add = [ordered]@{}
-        foreach($SubNet in $Object.properties.subnets){ $counter++            
+        foreach($SubNet in $Object.properties.subnets){ $counter++
             $Add += [ordered]@{"Subnet$($counter)" = $SubNet.Name; "Subnet$($counter)AddressPrefix" = $SubNet.properties.AddressPrefix}
         }
         $Current += $Add
@@ -132,7 +132,7 @@ foreach ($Subscription in $Subscriptions) {
         $AzRestVirtualNetwork += New-Object PSObject -Property $Current
     }
     if ($Export) {
-        Write-Progress -Activity "Fetching vNet Information from $($Subscription.Name)" -Status "Subsctiption $i out of $($Subscriptions.count)" -PercentComplete (($i / $Subscriptions.Count) * 100)  
+        Write-Progress -Activity "Fetching vNet Information from $($Subscription.Name)" -Status "Subsctiption $i out of $($Subscriptions.count)" -PercentComplete (($i / $Subscriptions.Count) * 100)
         $i++
         if ($Html) {
             $a = "<style>"
