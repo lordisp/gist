@@ -98,14 +98,37 @@ function Get-AzRestVirtualNetwork {
     }
     return $Query.value 
 }
-$Subscriptions = Get-AzSubscription -SubscriptionName $Subscription -TenantId $TenantId | Where-Object { $_.State -eq 'Enabled' -and $_.name -ne 'Zugriff auf Azure Active Directory' -and $_.name -ne 'Access to Azure Active Directory' }
+$Subscriptions = Get-AzSubscription -SubscriptionName $Subscription -TenantId $TenantId | Where-Object { $_.State -eq 'Enabled' -and $_.name -ne 'Zugriff auf Azure Active Directory' -and $_.name -ne 'Access to Azure Active Directory' } 
 $i = 0
 $AzRestVirtualNetwork = @()
 Clear-Host
 foreach ($Subscription in $Subscriptions) {
     $Objects = Get-AzRestVirtualNetwork -SubscriptionId $Subscription.Id 
     foreach ($Object in $Objects) {
-        $Current = [ordered]@{'Subscription' = $Subscription.Name; 'vNetName' = $Object.Name; 'addressPref1' = $Object.properties.addressSpace.addressPrefixes[0]; 'addressPref2' = $Object.properties.addressSpace.addressPrefixes[1]; 'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; 'BusinessService' = $Object.tags.business_service; 'BusinessUnit' = $Object.tags.business_unit; 'MspSLA' = $Object.tags.msp_sla; 'Peering' = $Object.properties.virtualNetworkPeerings[0].name;'PeeringState' = $Object.properties.virtualNetworkPeerings[0].properties.peeringState;}
+        $Current = [ordered]@{'Subscription' = $Subscription.Name; `
+            'vNetName' = $Object.Name; `
+            'Location' = $Object.location; `
+            'Peering' = $Object.properties.virtualNetworkPeerings[0].name; `
+            'PeeringState' = $Object.properties.virtualNetworkPeerings[0].properties.peeringState;
+        }
+        #addressPrefixes
+        $counter=0
+        foreach($addressPrefix in $Object.properties.addressSpace.addressPrefixes){ $counter++            
+            $AddAddressPrefix = [ordered]@{}
+            $AddAddressPrefix += [ordered]@{"AddressPrefix$($counter)" = $addressPrefix;}
+        }
+        $Current += $AddAddressPrefix
+        #Tags
+        $Tags = [ordered]@{'CostCenter' = $Object.tags.cost_center; 'PspElement' = $Object.tags.psp_element; 'BusinessService' = $Object.tags.business_service; 'BusinessUnit' = $Object.tags.business_unit; 'MspSLA' = $Object.tags.msp_sla;}
+        $Current += $Tags
+        #SubNets
+        $counter=0
+        foreach($SubNet in $Object.properties.subnets){ $counter++
+            $AddSubnet = [ordered]@{}
+            $AddSubnet += [ordered]@{"Subnet$($counter)" = $SubNet.Name; "Subnet$($counter)AddressPrefix" = $SubNet.properties.AddressPrefix}
+        }
+        $Current += $AddSubnet
+
         $AzRestVirtualNetwork += New-Object PSObject -Property $Current
     }
     if ($Export) {
